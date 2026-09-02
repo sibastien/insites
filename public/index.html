@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Souhaib — Qualité &amp; Contenu</title>
+<style>
+:root{
+  --bg:#f4efe6;
+  --bg-alt:#ffffff;
+  --text:#2b2621;
+  --text-muted:#75695a;
+  --border:#e2d9c9;
+  --accent:#b9824a;
+  --accent-strong:#8f5f2e;
+  --dark:#22332b;
+  --dark2:#1a2921;
+  --excellent:#3f6b4c;
+  --excellent-bg:#e1efe4;
+  --bon:#a9701f;
+  --bon-bg:#f7ecd6;
+  --faible:#a1483a;
+  --faible-bg:#f6ddd7;
+  --urgent:#7d241c;
+  --urgent-bg:#f0cdc8;
+  --none:#6b6259;
+  --none-bg:#eae4d8;
+  --shadow:0 1px 3px rgba(43,38,33,.10), 0 1px 2px rgba(43,38,33,.06);
+  --radius:10px;
+}
+[data-theme="dark"]{
+  --bg:#171d19;
+  --bg-alt:#212821;
+  --text:#e9e3d6;
+  --text-muted:#a79c8b;
+  --border:#3a4238;
+  --accent:#d3a066;
+  --accent-strong:#e8b978;
+  --dark:#0f1712;
+  --dark2:#0b110d;
+  --excellent:#79bb8f;
+  --excellent-bg:#1d2c22;
+  --bon:#e0ac5a;
+  --bon-bg:#332a19;
+  --faible:#e08d7d;
+  --faible-bg:#3a231e;
+  --urgent:#ef8f83;
+  --urgent-bg:#3d1a16;
+  --none:#a79c8b;
+  --none-bg:#2a3229;
+  --shadow:0 1px 3px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:14.5px;
+  line-height:1.5;
+}
+a{color:var(--accent-strong);}
+
+.app{display:flex;min-height:100vh;}
+
+.sidebar{
+  width:240px;
+  flex-shrink:0;
+  background:var(--dark);
+  color:#efe9dc;
+  display:flex;
+  flex-direction:column;
+  padding:22px 16px;
+  position:sticky;
+  top:0;
+  height:100vh;
+}
+.sidebar h1{
+  font-size:16px;
+  margin:0 0 2px;
+  color:#fff;
+  letter-spacing:.2px;
+}
+.sidebar .subtitle{
+  font-size:12px;
+  color:#c9ab7e;
+  margin:0 0 24px;
+}
+.nav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px;flex:1;}
+.nav button{
+  all:unset;
+  cursor:pointer;
+  display:block;
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:13.5px;
+  color:#d9d0bf;
+}
+.nav button:hover{background:rgba(255,255,255,.06);}
+.nav button.active{background:var(--accent-strong);color:#221a10;font-weight:600;}
+.sidebar-footer{font-size:11px;color:#8a8071;padding-top:16px;border-top:1px solid rgba(255,255,255,.08);}
+.theme-toggle{
+  all:unset;cursor:pointer;font-size:12px;color:#d9d0bf;padding:8px 10px;border:1px solid rgba(255,255,255,.15);border-radius:8px;text-align:center;margin-top:10px;display:block;
+}
+.theme-toggle:hover{background:rgba(255,255,255,.06);}
+
+.main{flex:1;min-width:0;padding:26px 32px 60px;}
+.section{display:none;}
+.section.active{display:block;}
+
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
+.topbar h2{margin:0 0 4px;font-size:22px;color:var(--dark);}
+[data-theme="dark"] .topbar h2{color:#fff;}
+.topbar p{margin:0;color:var(--text-muted);font-size:13px;max-width:640px;}
+.actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+button.btn{
+  font-family:inherit;
+  cursor:pointer;
+  border:1px solid var(--border);
+  background:var(--bg-alt);
+  color:var(--text);
+  padding:8px 14px;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:500;
+}
+button.btn:hover{border-color:var(--accent);}
+button.btn-primary{background:var(--accent-strong);border-color:var(--accent-strong);color:#fff;}
+button.btn-primary:hover{opacity:.92;}
+button.btn-ghost{background:transparent;border:1px solid transparent;color:var(--accent-strong);padding:6px 8px;}
+button.btn-ghost:hover{text-decoration:underline;}
+button.btn-danger{color:var(--urgent);}
+button.btn-sm{padding:5px 10px;font-size:12px;}
+
+.card{
+  background:var(--bg-alt);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px 20px;
+}
+.card + .card{margin-top:16px;}
+.card h3{margin:0 0 12px;font-size:14.5px;color:var(--dark);}
+[data-theme="dark"] .card h3{color:#fff;}
+.card .hint{color:var(--text-muted);font-size:12px;margin:-8px 0 12px;}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px;}
+.kpi{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;}
+.kpi .label{font-size:12px;color:var(--text-muted);margin-bottom:6px;}
+.kpi .value{font-size:26px;font-weight:700;color:var(--dark);}
+[data-theme="dark"] .kpi .value{color:#fff;}
+.kpi .sub{font-size:11.5px;color:var(--text-muted);margin-top:4px;}
+
+.grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;}
+@media (max-width:980px){.grid-2{grid-template-columns:1fr;}}
+
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.bar-row .bl{width:120px;font-size:12.5px;flex-shrink:0;}
+.bar-row .bt{flex:1;background:var(--bg);border-radius:6px;overflow:hidden;height:16px;border:1px solid var(--border);}
+.bar-row .bt > div{height:100%;}
+.bar-row .bn{width:34px;text-align:right;font-size:12.5px;font-variant-numeric:tabular-nums;flex-shrink:0;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);font-weight:600;background:var(--bg);}
+tbody tr:hover{background:var(--bg);}
+.table-wrap{overflow-x:auto;}
+td.num{text-align:right;font-variant-numeric:tabular-nums;}
+.muted{color:var(--text-muted);}
+.small{font-size:12px;}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;}
+.badge-excellent{background:var(--excellent-bg);color:var(--excellent);}
+.badge-bon{background:var(--bon-bg);color:var(--bon);}
+.badge-faible{background:var(--faible-bg);color:var(--faible);}
+.badge-urgent{background:var(--urgent-bg);color:var(--urgent);}
+.badge-none{background:var(--none-bg);color:var(--none);}
+
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.filters select,.filters input[type=text],.filters input[type=search]{
+  font-family:inherit;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-alt);color:var(--text);font-size:13px;
+}
+
+label{display:block;font-size:12.5px;font-weight:600;margin:0 0 4px;color:var(--text);}
+input,select,textarea{
+  font-family:inherit;width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg-alt);color:var(--text);font-size:13.5px;
+}
+textarea{resize:vertical;min-height:60px;}
+.field{margin-bottom:12px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+@media (max-width:640px){.field-row,.field-row3{grid-template-columns:1fr;}}
+
+dialog{
+  border:none;border-radius:14px;padding:0;max-width:560px;width:92vw;
+  background:var(--bg-alt);color:var(--text);box-shadow:0 12px 40px rgba(0,0,0,.25);
+}
+dialog::backdrop{background:rgba(20,16,10,.45);}
+.modal-head{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.modal-head h3{margin:0;font-size:16px;}
+.modal-body{padding:18px 22px;max-height:70vh;overflow-y:auto;}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+.modal-close{all:unset;cursor:pointer;font-size:18px;color:var(--text-muted);}
+
+.checklist{display:flex;flex-direction:column;gap:2px;margin-bottom:6px;}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 4px;border-bottom:1px dashed var(--border);}
+.check-item input[type=checkbox]{width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:var(--accent-strong);}
+.check-item .txt{font-size:13.5px;}
+.progress-wrap{background:var(--bg);border:1px solid var(--border);border-radius:999px;height:10px;overflow:hidden;margin:10px 0 18px;}
+.progress-wrap > div{height:100%;background:var(--accent-strong);}
+
+.audit-total{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 18px;margin:16px 0;
+}
+.audit-total .num{font-size:30px;font-weight:700;}
+.crit-row{margin:14px 0;padding:16px;border:1px solid var(--border);border-radius:10px;background:var(--bg);}
+.crit-row-head{display:grid;grid-template-columns:1fr 120px;gap:16px;align-items:end;margin-bottom:12px;}
+.crit-row .lbl{font-size:15px;font-weight:700;color:var(--dark);}
+[data-theme="dark"] .crit-row .lbl{color:#fff;}
+.crit-row .lbl .max{color:var(--text-muted);font-size:11.5px;}
+.crit-details{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.crit-details textarea{min-height:110px;line-height:1.5;}
+@media (max-width:640px){.crit-row-head,.crit-details{grid-template-columns:1fr;}}
+
+.reminder{background:var(--bon-bg);border:1px solid var(--bon);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;}
+.reminder.empty{background:var(--excellent-bg);border-color:var(--excellent);}
+.reminder-title{font-weight:700;font-size:13px;margin-bottom:6px;color:var(--dark);}
+[data-theme="dark"] .reminder-title{color:#fff;}
+
+.empty-state{padding:26px;text-align:center;color:var(--text-muted);font-size:13px;}
+
+footer.build-note{margin-top:30px;font-size:11.5px;color:var(--text-muted);}
+
+@media print{
+  .sidebar,.no-print,dialog{display:none !important;}
+  .main{padding:0;}
+  .section{display:none !important;}
+  .section.print-active{display:block !important;}
+  body{background:#fff;}
+  .card,.kpi{box-shadow:none;border:1px solid #ccc;}
+}
+
+dialog.modal-lg{max-width:740px;}
+
+.report-top{display:flex;align-items:center;gap:22px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.report-gauge{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0;}
+.gauge{width:112px;height:112px;}
+.gauge-num{font-size:28px;font-weight:700;fill:var(--dark);}
+[data-theme="dark"] .gauge-num{fill:#fff;}
+.gauge-sub{font-size:11px;fill:var(--text-muted);}
+.report-heading{min-width:0;}
+.report-brand{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:2px;}
+.report-heading h2{margin:0 0 6px;font-size:19px;color:var(--dark);text-wrap:balance;}
+[data-theme="dark"] .report-heading h2{color:#fff;}
+
+.report-block{margin:22px 0;}
+.report-block h4{margin:0 0 12px;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);}
+.report-prose{font-size:13.5px;line-height:1.7;color:var(--text);margin:0 0 8px;}
+
+.report-crit{padding:12px 0;border-bottom:1px dashed var(--border);}
+.report-crit:last-child{border-bottom:none;}
+.report-crit-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;}
+.report-crit-label{font-weight:600;font-size:13.5px;color:var(--dark);}
+[data-theme="dark"] .report-crit-label{color:#fff;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <h1>Souhaib</h1>
+    <p class="subtitle">Qualité des activités &amp; plateformes</p>
+    <ul class="nav" id="navList">
+      <li><button data-section="overview" class="active">Vue d'ensemble</button></li>
+      <li><button data-section="activities">Master Activities</button></li>
+      <li><button data-section="audit">Audit Quality Score</button></li>
+      <li><button data-section="reviews">Avis clients</button></li>
+      <li><button data-section="competitors">Benchmark concurrents</button></li>
+      <li><button data-section="daily">Fiche quotidienne</button></li>
+    </ul>
+    <button class="theme-toggle" id="themeToggle">Mode sombre</button>
+    <div class="sidebar-footer">Route Insolite × Dunes Insolites<br>Données stockées dans une base SQLite locale (serveur Node.js).</div>
+  </aside>
+
+  <main class="main">
+
+    <!-- OVERVIEW -->
+    <section class="section active" id="section-overview">
+      <div class="topbar">
+        <div>
+          <h2>Vue d'ensemble</h2>
+          <p>Priorité : qualité produit → contenu &amp; service → contrôle marketing → amélioration continue.</p>
+        </div>
+        <div class="actions no-print">
+          <button class="btn" onclick="window.print()">Imprimer</button>
+        </div>
+      </div>
+
+      <div id="overviewReminder"></div>
+
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>Répartition qualité du catalogue</h3>
+          <p class="hint">85–100 Excellent · 70–84 Bon à optimiser · 50–69 Faible · &lt;50 Urgent</p>
+          <div id="distributionBars"></div>
+        </div>
+        <div class="card">
+          <h3>Sujets récurrents dans les avis</h3>
+          <p class="hint">Comptés depuis l'onglet Avis clients</p>
+          <div id="reviewTopics"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Priorités — activités à corriger en premier</h3>
+        <p class="hint">Non auditées d'abord, puis scores les plus faibles</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Activité</th><th>Marque</th><th>Score</th><th>Statut</th><th></th></tr></thead>
+            <tbody id="priorityTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Sauvegarde des données</h3>
+        <p class="hint">Les données sont stockées dans la base SQLite du serveur (dossier data/). Exportez régulièrement une sauvegarde JSON en complément.</p>
+        <div class="actions no-print">
+          <button class="btn" onclick="exportBackup()">Exporter une sauvegarde (JSON)</button>
+          <button class="btn" onclick="document.getElementById('importFile').click()">Importer une sauvegarde</button>
+          <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importBackup(event)">
+        </div>
+      </div>
+    </section>
+
+    <!-- ACTIVITIES -->
+    <section class="section" id="section-activities">
+      <div class="topbar">
+        <div>
+          <h2>Master Activities</h2>
+          <p>Catalogue central : marque, plateforme, départ, durée, note, avis, statut qualité.</p>
+        </div>
+        <div class="actions no-print">
+          <button class="btn" onclick="exportActivitiesCSV()">Exporter CSV</button>
+          <button class="btn" onclick="window.print()">Imprimer</button>
+          <button class="btn btn-primary" onclick="openActivityModal()">+ Nouvelle activité</button>
+        </div>
+      </div>
+
+      <div class="filters no-print">
+        <select id="filterMarque" onchange="renderActivities()">
+          <option value="">Toutes les marques</option>
+          <option value="Dunes Insolites">Dunes Insolites</option>
+          <option value="Route Insolite">Route Insolite</option>
+        </select>
+        <select id="filterStatut" onchange="renderActivities()">
+          <option value="">Tous les statuts</option>
+          <option value="excellent">Excellent</option>
+          <option value="bon">Bon à optimiser</option>
+          <option value="faible">Faible</option>
+          <option value="urgent">Urgent</option>
+          <option value="none">Non audité</option>
+        </select>
+        <input type="text" id="filterSearch" placeholder="Rechercher un nom…" oninput="renderActivities()">
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Nom</th><th>Marque</th><th>Plateforme</th><th>Lien du voyage</th><th>Départ</th><th>Durée</th>
+              <th>Note</th><th>Avis</th><th>Score</th><th>Statut</th><th>Dernier audit</th><th></th>
+            </tr></thead>
+            <tbody id="activitiesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- AUDIT -->
+    <section class="section" id="section-audit">
+      <div class="topbar">
+        <div>
+          <h2>Audit Quality Score</h2>
+          <p>Score sur 100 : Titre 10 · Photo 15 · Galerie 10 · Description 10 · Programme 15 · Clarté 10 · Différenciation 10 · Avis 10 · Qualité/prix 10.</p>
+        </div>
+        <div class="actions no-print">
+          <button class="btn" onclick="window.print()">Imprimer</button>
+          <button class="btn btn-primary" onclick="openAuditReport()">Voir le rapport</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="field-row">
+          <div class="field">
+            <label>Activité à auditer</label>
+            <select id="auditActivitySelect" onchange="onAuditActivityChange()"></select>
+          </div>
+          <div class="field" style="display:flex;align-items:flex-end;gap:8px;">
+            <button class="btn no-print" style="height:38px" onclick="openActivityModal(null,true)">+ Nouvelle activité</button>
+          </div>
+        </div>
+
+        <div id="auditFormArea" style="display:none;">
+          <div class="field">
+            <label>Prochaine vérification prévue</label>
+            <input type="date" id="auditNextDate" style="max-width:220px">
+          </div>
+
+          <div id="auditCriteriaRows"></div>
+
+          <div class="audit-total">
+            <div>
+              <div class="muted small">Total</div>
+              <div class="num" id="auditTotalValue">0 / 100</div>
+            </div>
+            <span class="badge" id="auditTotalBadge">Non audité</span>
+          </div>
+
+          <div class="field">
+            <label for="auditOverview">Appréciation globale</label>
+            <textarea id="auditOverview" rows="4" placeholder="Présentez ici une vue d’ensemble de la qualité de l’activité, ses principaux points forts et les améliorations prioritaires."></textarea>
+            <div class="muted small" style="margin-top:5px;">Ce paragraphe accompagne la note globale et permet d’en résumer clairement l’évaluation.</div>
+          </div>
+
+          <div class="field">
+            <label for="auditAiInsight">Analyse / insights IA</label>
+            <textarea id="auditAiInsight" rows="6" placeholder="Collez ici l’analyse ou les recommandations obtenues depuis votre outil IA."></textarea>
+            <div class="muted small" style="margin-top:5px;">Ce champ sert uniquement à enregistrer une analyse copiée depuis une IA externe.</div>
+          </div>
+
+          <div class="actions no-print">
+            <button class="btn" onclick="saveAuditDraft()">Enregistrer comme brouillon</button>
+            <button class="btn btn-primary" onclick="saveAudit()">Enregistrer l'audit</button>
+          </div>
+
+          <h3 style="margin-top:26px;">Historique des audits</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Score</th><th>Statut</th><th class="no-print">Action</th></tr></thead>
+              <tbody id="auditHistoryBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="auditEmptyState" class="empty-state">Sélectionnez une activité ci-dessus pour commencer un audit.</div>
+      </div>
+    </section>
+
+    <!-- REVIEWS -->
+    <section class="section" id="section-reviews">
+      <div class="topbar">
+        <div>
+          <h2>Avis clients</h2>
+          <p>Remarques classées par activité et par catégorie : guide, transport, programme, repas, camp, activité, organisation, valeur/prix.</p>
+        </div>
+        <div class="actions no-print">
+          <button class="btn" onclick="exportReviewsCSV()">Exporter CSV</button>
+          <button class="btn" onclick="window.print()">Imprimer</button>
+          <button class="btn btn-primary" onclick="openReviewModal()">+ Nouvel avis</button>
+        </div>
+      </div>
+
+      <div class="filters no-print">
+        <select id="filterReviewActivity" onchange="renderReviews()"><option value="">Toutes les activités</option></select>
+        <select id="filterReviewCategory" onchange="renderReviews()"></select>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Activité</th><th>Plateforme</th><th>Catégorie</th><th>Sentiment</th><th>Résumé</th><th></th></tr></thead>
+            <tbody id="reviewsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPETITORS -->
+    <section class="section" id="section-competitors">
+      <div class="topbar">
+        <div>
+          <h2>Benchmark concurrents</h2>
+          <p>Comparaison des produits concurrents sur GetYourGuide, Viator, Tripadvisor Experiences, Civitatis, TourRadar et autres canaux.</p>
+        </div>
+        <div class="actions no-print">
+          <button class="btn" onclick="exportCompetitorsCSV()">Exporter CSV</button>
+          <button class="btn" onclick="window.print()">Imprimer</button>
+          <button class="btn btn-primary" onclick="openCompetitorModal()">+ Nouvelle fiche</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Plateforme</th><th>Concurrent</th><th>Prix</th><th>Activité liée</th><th>Points forts / écarts</th><th></th></tr></thead>
+            <tbody id="competitorsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- DAILY -->
+    <section class="section" id="section-daily">
+      <div class="topbar">
+        <div>
+          <h2>Fiche quotidienne</h2>
+          <p>Qualité des activités et optimisation de leur présentation sur les plateformes.</p>
+        </div>
+        <div class="actions no-print">
+          <button class="btn" onclick="exportDailyCSV()">Exporter CSV</button>
+          <button class="btn" onclick="window.print()">Imprimer</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="field" style="max-width:220px;">
+          <label>Date</label>
+          <input type="date" id="dailyDate" onchange="loadDailyForDate()">
+        </div>
+
+        <div class="checklist" id="dailyChecklist"></div>
+        <div class="progress-wrap"><div id="dailyProgressBar" style="width:0%"></div></div>
+
+        <h3>Mesures du jour</h3>
+        <div class="field-row3" id="dailyMeasures"></div>
+
+        <div class="field">
+          <label>Notes / priorité pour demain</label>
+          <textarea id="dailyNotes" placeholder="…"></textarea>
+        </div>
+
+        <div class="actions no-print">
+          <button class="btn btn-primary" onclick="saveDaily()">Enregistrer la journée</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Cette semaine</h3>
+        <div class="kpi-grid" id="weeklyKpis"></div>
+      </div>
+
+      <div class="card">
+        <h3>Historique</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Complétion</th><th>Fiches</th><th>Auditées</th><th>Scores MAJ</th><th>Problèmes</th><th>Améliorations</th><th>Concurrents</th><th>Idées</th><th></th></tr></thead>
+            <tbody id="dailyHistoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="build-note no-print">Dashboard local — Route Insolite × Dunes Insolites — usage individuel (Souhaib).</footer>
+  </main>
+</div>
+
+<!-- AUDIT REPORT MODAL -->
+<dialog id="reportModal" class="modal-lg">
+  <div class="modal-head">
+    <h3>Rapport d'audit</h3>
+    <button type="button" class="modal-close" onclick="closeModal('reportModal')">&times;</button>
+  </div>
+  <div class="modal-body" id="reportModalBody"></div>
+  <div class="modal-foot">
+    <button type="button" class="btn btn-primary" onclick="closeModal('reportModal')">Fermer</button>
+  </div>
+</dialog>
+
+<!-- ACTIVITY MODAL -->
+<dialog id="activityModal">
+  <form method="dialog" onsubmit="return false;">
+    <div class="modal-head">
+      <h3 id="activityModalTitle">Nouvelle activité</h3>
+      <button type="button" class="modal-close" onclick="closeModal('activityModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="actId">
+      <div class="field">
+        <label>Nom de l'activité *</label>
+        <input type="text" id="actNom" placeholder="Ex. 2-Day Mountain Oases">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Marque</label>
+          <select id="actMarque">
+            <option>Dunes Insolites</option>
+            <option>Route Insolite</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Plateforme</label>
+          <input type="text" id="actPlateforme" list="platformOptions" placeholder="GetYourGuide…">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Point de départ</label>
+          <input type="text" id="actDepart">
+        </div>
+        <div class="field">
+          <label>Durée</label>
+          <input type="text" id="actDuree" placeholder="Ex. 2 jours">
+        </div>
+      </div>
+      <div class="field">
+        <label for="actTripLink">Lien de référence du voyage</label>
+        <input type="url" id="actTripLink" placeholder="https://exemple.com/votre-voyage">
+        <div class="muted small" style="margin-top:5px;">Ajoutez le lien vers la fiche du voyage ou de l’excursion.</div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Note (/5)</label>
+          <input type="number" id="actNote" min="0" max="5" step="0.1">
+        </div>
+        <div class="field">
+          <label>Nombre d'avis</label>
+          <input type="number" id="actAvisCount" min="0" step="1">
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn" onclick="closeModal('activityModal')">Annuler</button>
+      <button type="button" class="btn btn-primary" onclick="saveActivityForm()">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- REVIEW MODAL -->
+<dialog id="reviewModal">
+  <form method="dialog" onsubmit="return false;">
+    <div class="modal-head">
+      <h3>Nouvel avis</h3>
+      <button type="button" class="modal-close" onclick="closeModal('reviewModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="revId">
+      <div class="field">
+        <label>Activité *</label>
+        <select id="revActivity"></select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Plateforme</label>
+          <input type="text" id="revPlateforme" list="platformOptions">
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="revDate">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Catégorie</label>
+          <select id="revCategory"></select>
+        </div>
+        <div class="field">
+          <label>Sentiment</label>
+          <select id="revSentiment">
+            <option>Positif</option>
+            <option>Négatif</option>
+            <option>Neutre</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Résumé / remarque</label>
+        <textarea id="revTexte" placeholder="Ce que dit le client…"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn" onclick="closeModal('reviewModal')">Annuler</button>
+      <button type="button" class="btn btn-primary" onclick="saveReviewForm()">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- COMPETITOR MODAL -->
+<dialog id="competitorModal">
+  <form method="dialog" onsubmit="return false;">
+    <div class="modal-head">
+      <h3>Nouvelle fiche concurrent</h3>
+      <button type="button" class="modal-close" onclick="closeModal('competitorModal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="compId">
+      <div class="field-row">
+        <div class="field">
+          <label>Plateforme</label>
+          <input type="text" id="compPlateforme" list="competitorPlatformOptions">
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="compDate">
+        </div>
+      </div>
+      <div class="field">
+        <label>Nom du concurrent / produit</label>
+        <input type="text" id="compNom">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Prix observé</label>
+          <input type="text" id="compPrix" placeholder="Ex. 45€">
+        </div>
+        <div class="field">
+          <label>Activité liée (optionnel)</label>
+          <select id="compActivity"><option value="">Aucune / général</option></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Points forts du concurrent</label>
+        <textarea id="compForces"></textarea>
+      </div>
+      <div class="field">
+        <label>Écarts / idées à reprendre</label>
+        <textarea id="compEcarts"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn" onclick="closeModal('competitorModal')">Annuler</button>
+      <button type="button" class="btn btn-primary" onclick="saveCompetitorForm()">Enregistrer</button>
+    </div>
+  </form>
+</dialog>
+
+<datalist id="platformOptions">
+  <option value="GetYourGuide"><option value="Viator"><option value="Tripadvisor">
+  <option value="Booking.com"><option value="Airbnb"><option value="Agoda">
+  <option value="Expedia"><option value="WeTravel"><option value="Google Maps">
+</datalist>
+<datalist id="competitorPlatformOptions">
+  <option value="GetYourGuide"><option value="Viator"><option value="Tripadvisor Experiences">
+  <option value="Civitatis"><option value="TourRadar">
+</datalist>
+
+<script>
+'use strict';
+
+const API = '/api';
+
+const CRITERIA = [
+  {key:'titre', label:'Titre', max:10},
+  {key:'photo', label:'Photo principale', max:15},
+  {key:'galerie', label:'Galerie', max:10},
+  {key:'description', label:'Description', max:10},
+  {key:'programme', label:'Programme', max:15},
+  {key:'clarte', label:'Clarté informations', max:10},
+  {key:'diff', label:'Différenciation', max:10},
+  {key:'avis', label:'Avis / satisfaction', max:10},
+  {key:'prix', label:'Rapport qualité / prix', max:10},
+];
+
+const REVIEW_CATEGORIES = ['Guide','Transport','Programme','Repas','Camp','Activité','Organisation','Valeur/Prix'];
+
+const DAILY_TASKS = [
+  "Contrôler les activités/fiches prioritaires et relever les informations à corriger.",
+  "Vérifier la qualité réelle de l'activité : programme, durée, clarté et valeur perçue.",
+  "Contrôler titre, photo principale, galerie, inclus/non inclus et informations pratiques.",
+  "Lire les avis/questions liés aux activités et relever les problèmes ou points forts répétés.",
+  "Mettre à jour le tableau Quality Score des activités travaillées.",
+  "Observer les activités concurrentes et les tendances sur les plateformes.",
+  "Rechercher ou préparer une idée d'amélioration/nouvelle activité lorsque pertinent."
+];
+const DAILY_MEASURES = [
+  {key:'fichesControlees', label:'Fiches contrôlées'},
+  {key:'activitesAuditees', label:'Activités auditées'},
+  {key:'scoresMisAJour', label:'Scores mis à jour'},
+  {key:'problemesDetectes', label:'Problèmes détectés'},
+  {key:'ameliorationsProposees', label:'Améliorations proposées'},
+  {key:'concurrentsObserves', label:'Concurrents observés'},
+  {key:'ideesTrouvees', label:'Idées trouvées'},
+];
+
+let state = { activities: [], reviews: [], competitors: [], dailyLogs: [] };
+let pendingAuditSelect = false;
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function addDays(iso, n){ const d = new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function fmtDate(iso){ if(!iso) return '—'; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
+function startOfWeek(date){ const d=new Date(date); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d; }
+function escCsv(v){ v = (v===undefined||v===null)?'':String(v); if(/[",\n]/.test(v)) v = '"'+v.replace(/"/g,'""')+'"'; return v; }
+
+/* ---------- API HELPERS ---------- */
+async function apiGet(pathSuffix){
+  const r = await fetch(API+pathSuffix);
+  if(!r.ok) throw new Error((await r.json().catch(()=>({}))).error || r.statusText);
+  return r.json();
+}
+async function apiSend(method, pathSuffix, body){
+  const r = await fetch(API+pathSuffix, {
+    method,
+    headers: body!==undefined ? {'Content-Type':'application/json'} : undefined,
+    body: body!==undefined ? JSON.stringify(body) : undefined
+  });
+  if(!r.ok) throw new Error((await r.json().catch(()=>({}))).error || r.statusText);
+  if(r.status===204) return null;
+  return r.json();
+}
+async function loadState(){
+  state = await apiGet('/state');
+}
+async function guarded(fn){
+  try{ await fn(); }
+  catch(e){ alert('Erreur : '+e.message); }
+}
+
+function scoreBand(total){
+  if(total===null || total===undefined) return {key:'none', label:'Non audité'};
+  if(total>=85) return {key:'excellent', label:'Excellent'};
+  if(total>=70) return {key:'bon', label:'Bon — à optimiser'};
+  if(total>=50) return {key:'faible', label:'Faible'};
+  return {key:'urgent', label:'Urgent'};
+}
+function badgeHtml(total){
+  const b = scoreBand(total);
+  return `<span class="badge badge-${b.key}">${b.label}</span>`;
+}
+
+function downloadFile(filename, content, mime){
+  const blob = new Blob([content], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function csvFromRows(headers, rows){
+  return [headers.join(','), ...rows.map(r=>r.map(escCsv).join(','))].join('\n');
+}
+
+/* ---------- NAV ---------- */
+function switchSection(id){
+  document.querySelectorAll('.section').forEach(s=>{
+    s.classList.remove('active','print-active');
+  });
+  const target = document.getElementById('section-'+id);
+  target.classList.add('active','print-active');
+  document.querySelectorAll('.nav button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.section===id);
+  });
+  if(id==='overview') renderOverview();
+  if(id==='activities') renderActivities();
+  if(id==='audit'){ populateAuditSelect(); }
+  if(id==='reviews') renderReviews();
+  if(id==='competitors') renderCompetitors();
+  if(id==='daily') renderDaily();
+}
+
+/* ---------- ACTIVITIES ---------- */
+function getActivity(id){ return state.activities.find(a=>a.id===id); }
+
+function openActivityModal(id, fromAudit){
+  pendingAuditSelect = !!fromAudit;
+  document.getElementById('activityModalTitle').textContent = id ? 'Modifier l\'activité' : 'Nouvelle activité';
+  const a = id ? getActivity(id) : null;
+  document.getElementById('actId').value = id || '';
+  document.getElementById('actNom').value = a ? a.nom : '';
+  document.getElementById('actMarque').value = a ? a.marque : 'Dunes Insolites';
+  document.getElementById('actPlateforme').value = a ? a.plateforme||'' : '';
+  document.getElementById('actDepart').value = a ? a.depart||'' : '';
+  document.getElementById('actDuree').value = a ? a.duree||'' : '';
+  document.getElementById('actTripLink').value = a ? a.tripLink||'' : '';
+  document.getElementById('actNote').value = a && a.note!=null ? a.note : '';
+  document.getElementById('actAvisCount').value = a && a.avisCount!=null ? a.avisCount : '';
+  document.getElementById('activityModal').showModal();
+}
+function closeModal(id){ document.getElementById(id).close(); }
+
+function saveActivityForm(){
+  guarded(async ()=>{
+    const nom = document.getElementById('actNom').value.trim();
+    if(!nom){ alert('Le nom de l\'activité est obligatoire.'); return; }
+    let tripLink = document.getElementById('actTripLink').value.trim();
+    if(tripLink && !/^https?:\/\//i.test(tripLink)) tripLink = 'https://' + tripLink;
+    if(tripLink){
+      try {
+        const parsedLink = new URL(tripLink);
+        if(!['http:','https:'].includes(parsedLink.protocol)) throw new Error();
+      } catch(e) {
+        alert('Veuillez saisir un lien de voyage valide.');
+        return;
+      }
+    }
+    const id = document.getElementById('actId').value;
+    const data = {
+      nom,
+      marque: document.getElementById('actMarque').value,
+      plateforme: document.getElementById('actPlateforme').value.trim(),
+      depart: document.getElementById('actDepart').value.trim(),
+      duree: document.getElementById('actDuree').value.trim(),
+      tripLink,
+      note: document.getElementById('actNote').value ? parseFloat(document.getElementById('actNote').value) : null,
+      avisCount: document.getElementById('actAvisCount').value ? parseInt(document.getElementById('actAvisCount').value,10) : null,
+    };
+    let newId = id;
+    if(id){
+      await apiSend('PUT', '/activities/'+id, data);
+    } else {
+      const created = await apiSend('POST', '/activities', data);
+      newId = created.id;
+    }
+    await loadState();
+    closeModal('activityModal');
+    renderActivities();
+    populateAuditSelect();
+    populateActivityDropdowns();
+    renderOverview();
+    if(pendingAuditSelect){
+      document.getElementById('auditActivitySelect').value = newId;
+      onAuditActivityChange();
+      pendingAuditSelect = false;
+    }
+  });
+}
+
+function deleteActivity(id){
+  if(!confirm('Supprimer cette activité ? Les avis et fiches concurrents liés seront conservés mais orphelins.')) return;
+  guarded(async ()=>{
+    await apiSend('DELETE', '/activities/'+id);
+    await loadState();
+    renderActivities(); populateAuditSelect(); populateActivityDropdowns(); renderOverview();
+  });
+}
+
+function renderActivities(){
+  const marque = document.getElementById('filterMarque').value;
+  const statut = document.getElementById('filterStatut').value;
+  const search = document.getElementById('filterSearch').value.toLowerCase();
+  const body = document.getElementById('activitiesTableBody');
+  let list = state.activities.slice();
+  if(marque) list = list.filter(a=>a.marque===marque);
+  if(statut) list = list.filter(a=>scoreBand(a.total).key===statut);
+  if(search) list = list.filter(a=>a.nom.toLowerCase().includes(search));
+  list.sort((a,b)=> (a.total ?? -1) - (b.total ?? -1));
+
+  if(list.length===0){
+    body.innerHTML = `<tr><td colspan="12" class="empty-state">Aucune activité. Ajoutez-en une avec "+ Nouvelle activité".</td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(a=>`
+    <tr>
+      <td>${a.nom}</td>
+      <td>${a.marque}</td>
+      <td>${a.plateforme||'—'}</td>
+      <td>${a.tripLink ? `<a href="${a.tripLink}" target="_blank" rel="noopener noreferrer">Voir le voyage</a>` : '—'}</td>
+      <td>${a.depart||'—'}</td>
+      <td>${a.duree||'—'}</td>
+      <td class="num">${a.note!=null? a.note.toFixed(1):'—'}</td>
+      <td class="num">${a.avisCount!=null? a.avisCount:'—'}</td>
+      <td class="num">${a.total!=null? a.total+'/100':'—'}</td>
+      <td>${badgeHtml(a.total)}</td>
+      <td>${fmtDate(a.lastAudit)}</td>
+      <td class="no-print">
+        <button class="btn btn-ghost btn-sm" onclick="goAudit('${a.id}')">Auditer</button>
+        <button class="btn btn-ghost btn-sm" onclick="openActivityModal('${a.id}')">Modifier</button>
+        <button class="btn btn-ghost btn-sm btn-danger" onclick="deleteActivity('${a.id}')">Suppr.</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function exportActivitiesCSV(){
+  const headers = ['Nom','Marque','Plateforme','Lien du voyage','Départ','Durée','Note','Avis','Score','Statut','Dernier audit'];
+  const rows = state.activities.map(a=>[a.nom,a.marque,a.plateforme,a.tripLink||'',a.depart,a.duree,a.note,a.avisCount,a.total,scoreBand(a.total).label,a.lastAudit]);
+  downloadFile('master-activities.csv', csvFromRows(headers, rows), 'text/csv;charset=utf-8');
+}
+
+function goAudit(id){
+  switchSection('audit');
+  document.getElementById('auditActivitySelect').value = id;
+  onAuditActivityChange();
+}
+
+/* ---------- AUDIT ---------- */
+function populateAuditSelect(){
+  const sel = document.getElementById('auditActivitySelect');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— Sélectionner une activité —</option>' +
+    state.activities.map(a=>`<option value="${a.id}">${a.nom} — ${a.marque}</option>`).join('');
+  if(current && getActivity(current)) sel.value = current;
+  buildCriteriaRows();
+  onAuditActivityChange();
+}
+
+function buildCriteriaRows(){
+  const container = document.getElementById('auditCriteriaRows');
+  container.innerHTML = CRITERIA.map(c=>`
+    <div class="crit-row">
+      <div class="crit-row-head">
+        <div class="lbl">${c.label}</div>
+        <div>
+          <label for="crit_${c.key}">Score / ${c.max}</label>
+          <input type="number" min="0" max="${c.max}" step="1" id="crit_${c.key}" oninput="recomputeAuditTotal()">
+        </div>
+      </div>
+      <div class="crit-details">
+        <div>
+          <label for="critnote_${c.key}">Observation détaillée</label>
+          <textarea id="critnote_${c.key}" rows="5" placeholder="Décrivez les points forts, les problèmes constatés et les éléments importants…"></textarea>
+        </div>
+        <div>
+          <label for="critaction_${c.key}">Action recommandée</label>
+          <textarea id="critaction_${c.key}" rows="5" placeholder="Décrivez précisément les corrections ou améliorations à réaliser…"></textarea>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function onAuditActivityChange(){
+  const id = document.getElementById('auditActivitySelect').value;
+  const formArea = document.getElementById('auditFormArea');
+  const empty = document.getElementById('auditEmptyState');
+  if(!id){ formArea.style.display='none'; empty.style.display='block'; return; }
+  formArea.style.display='block'; empty.style.display='none';
+  const a = getActivity(id);
+  CRITERIA.forEach(c=>{
+    const savedScore = a.scores ? a.scores[c.key] : undefined;
+    document.getElementById('crit_'+c.key).value = savedScore === null ? '' : (savedScore ?? 0);
+    document.getElementById('critnote_'+c.key).value = (a.scoresNotes && a.scoresNotes[c.key]) || '';
+    document.getElementById('critaction_'+c.key).value = (a.scoresActions && a.scoresActions[c.key]) || '';
+  });
+  document.getElementById('auditNextDate').value = a.nextAudit || addDays(todayISO(), 28);
+  document.getElementById('auditOverview').value = a.auditOverview || '';
+  document.getElementById('auditAiInsight').value = a.auditAiInsight || '';
+  recomputeAuditTotal();
+  renderAuditHistory(a);
+}
+
+function recomputeAuditTotal(){
+  let total = 0;
+  CRITERIA.forEach(c=>{
+    const el = document.getElementById('crit_'+c.key);
+    let v = parseFloat(el.value)||0;
+    if(v<0) v=0; if(v>c.max) v=c.max;
+    total += v;
+  });
+  document.getElementById('auditTotalValue').textContent = total + ' / 100';
+  const b = scoreBand(total);
+  const badge = document.getElementById('auditTotalBadge');
+  badge.textContent = b.label;
+  badge.className = 'badge badge-'+b.key;
+}
+
+function collectAuditPayload(draft){
+  const scores = {}; const scoresNotes = {}; const scoresActions = {};
+  CRITERIA.forEach(c=>{
+    const raw = document.getElementById('crit_'+c.key).value;
+    scores[c.key] = raw === '' ? null : parseFloat(raw);
+    scoresNotes[c.key] = document.getElementById('critnote_'+c.key).value.trim();
+    scoresActions[c.key] = document.getElementById('critaction_'+c.key).value.trim();
+  });
+  return {
+    scores, scoresNotes, scoresActions,
+    auditOverview: document.getElementById('auditOverview').value.trim(),
+    auditAiInsight: document.getElementById('auditAiInsight').value.trim(),
+    nextAudit: document.getElementById('auditNextDate').value || '',
+    draft: !!draft
+  };
+}
+
+function saveAuditDraft(){
+  const id = document.getElementById('auditActivitySelect').value;
+  if(!id){ alert('Sélectionnez une activité.'); return; }
+  guarded(async ()=>{
+    await apiSend('POST', '/activities/'+id+'/audit', collectAuditPayload(true));
+    await loadState();
+    alert('Brouillon enregistré. Vous pourrez reprendre cet audit plus tard.');
+  });
+}
+
+function saveAudit(){
+  const id = document.getElementById('auditActivitySelect').value;
+  if(!id){ alert('Sélectionnez une activité.'); return; }
+  guarded(async ()=>{
+    const updated = await apiSend('POST', '/activities/'+id+'/audit', collectAuditPayload(false));
+    await loadState();
+    renderAuditHistory(getActivity(id));
+    renderActivities();
+    renderOverview();
+    alert('Audit enregistré : '+updated.total+'/100 — '+scoreBand(updated.total).label);
+  });
+}
+
+function renderAuditHistory(a){
+  const body = document.getElementById('auditHistoryBody');
+  if(!a.auditHistory || a.auditHistory.length===0){
+    body.innerHTML = `<tr><td colspan="4" class="empty-state">Aucun audit enregistré pour cette activité.</td></tr>`;
+    return;
+  }
+  body.innerHTML = a.auditHistory.map(h=>`
+    <tr>
+      <td>${fmtDate(h.date)}</td>
+      <td class="num">${h.total}/100</td>
+      <td>${badgeHtml(h.total)}</td>
+      <td class="no-print"><button class="btn btn-ghost btn-sm btn-danger" onclick="deleteAuditHistoryEntry('${a.id}',${h.id})">Supprimer</button></td>
+    </tr>
+  `).join('');
+}
+
+function deleteAuditHistoryEntry(activityId, histId){
+  const a = getActivity(activityId);
+  const entry = a && a.auditHistory.find(h=>h.id===histId);
+  if(!entry) return;
+  if(!confirm(`Supprimer l’audit du ${fmtDate(entry.date)} avec le score ${entry.total}/100 ?`)) return;
+  guarded(async ()=>{
+    await apiSend('DELETE', '/activities/'+activityId+'/audit-history/'+histId);
+    await loadState();
+    onAuditActivityChange();
+    renderActivities();
+    renderOverview();
+  });
+}
+
+function scoreGaugeSvg(total){
+  const band = scoreBand(total);
+  const pct = Math.max(0, Math.min(100, total||0));
+  const r = 52, c = 2*Math.PI*r;
+  const dash = c*pct/100;
+  return `
+    <svg class="gauge" viewBox="0 0 128 128" role="img" aria-label="Score ${total} sur 100">
+      <circle cx="64" cy="64" r="${r}" fill="none" stroke="var(--border)" stroke-width="13"/>
+      <circle cx="64" cy="64" r="${r}" fill="none" style="stroke:var(--${band.key})" stroke-width="13"
+        stroke-linecap="round" stroke-dasharray="${dash} ${c-dash}" transform="rotate(-90 64 64)"/>
+      <text x="64" y="60" text-anchor="middle" class="gauge-num">${total}</text>
+      <text x="64" y="78" text-anchor="middle" class="gauge-sub">/ 100</text>
+    </svg>`;
+}
+
+function criteriaBarsHtml(a){
+  return CRITERIA.map(c=>{
+    const score = a.scores ? a.scores[c.key] : null;
+    const val = score==null ? 0 : score;
+    const pct = c.max ? (val/c.max*100) : 0;
+    const band = scoreBand(pct);
+    return `
+      <div class="bar-row">
+        <div class="bl">${c.label}</div>
+        <div class="bt"><div style="width:${pct}%;background:var(--${band.key})"></div></div>
+        <div class="bn">${score!=null? score : '—'}/${c.max}</div>
+      </div>`;
+  }).join('');
+}
+
+function criteriaDetailsHtml(a){
+  return CRITERIA.map(c=>{
+    const score = a.scores ? a.scores[c.key] : null;
+    const note = (a.scoresNotes && a.scoresNotes[c.key]) || '';
+    const action = (a.scoresActions && a.scoresActions[c.key]) || '';
+    if(!note && !action) return '';
+    const critBand = scoreBand(c.max ? (score||0)/c.max*100 : 0);
+    return `
+      <div class="report-crit">
+        <div class="report-crit-head">
+          <span class="report-crit-label">${c.label}</span>
+          <span class="badge badge-${critBand.key}">${score!=null? score : '—'} / ${c.max}</span>
+        </div>
+        ${note ? `<p class="report-prose"><strong>Observation —</strong> ${note.replace(/\n/g,'<br>')}</p>` : ''}
+        ${action ? `<p class="report-prose"><strong>Action recommandée —</strong> ${action.replace(/\n/g,'<br>')}</p>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function buildAuditReportHtml(a){
+  const band = scoreBand(a.total);
+  const meta = [
+    a.plateforme ? `Plateforme : ${a.plateforme}` : '',
+    a.depart ? `Départ : ${a.depart}` : '',
+    a.duree ? `Durée : ${a.duree}` : ''
+  ].filter(Boolean).join(' · ');
+  const critDetails = criteriaDetailsHtml(a);
+
+  return `
+    <div class="report-top">
+      <div class="report-gauge">
+        ${scoreGaugeSvg(a.total)}
+        <span class="badge badge-${band.key}">${band.label}</span>
+      </div>
+      <div class="report-heading">
+        <div class="report-brand">${a.marque}</div>
+        <h2>${a.nom}</h2>
+        <p class="muted small">${meta}</p>
+        <p class="muted small">Audit du ${fmtDate(a.lastAudit)}${a.nextAudit ? ` · Prochaine vérification : ${fmtDate(a.nextAudit)}` : ''}</p>
+      </div>
+    </div>
+
+    <div class="report-block">
+      <h4>Répartition des critères</h4>
+      ${criteriaBarsHtml(a)}
+    </div>
+
+    ${a.auditOverview ? `
+    <div class="report-block">
+      <h4>Appréciation globale</h4>
+      <p class="report-prose">${a.auditOverview.replace(/\n/g,'<br>')}</p>
+    </div>` : ''}
+
+    ${a.auditAiInsight ? `
+    <div class="report-block">
+      <h4>Analyse / insights IA</h4>
+      <p class="report-prose">${a.auditAiInsight.replace(/\n/g,'<br>')}</p>
+    </div>` : ''}
+
+    ${critDetails ? `
+    <div class="report-block">
+      <h4>Détail par critère</h4>
+      ${critDetails}
+    </div>` : ''}
+  `;
+}
+
+function openAuditReport(){
+  const id = document.getElementById('auditActivitySelect').value;
+  if(!id){ alert('Sélectionnez une activité.'); return; }
+  const a = getActivity(id);
+  if(a.total == null){ alert('Enregistrez d\'abord un audit pour cette activité avant de voir le rapport.'); return; }
+  document.getElementById('reportModalBody').innerHTML = buildAuditReportHtml(a);
+  document.getElementById('reportModal').showModal();
+}
+
+/* ---------- REVIEWS ---------- */
+function populateActivityDropdowns(){
+  const opts = '<option value="">Toutes les activités</option>' + state.activities.map(a=>`<option value="${a.id}">${a.nom}</option>`).join('');
+  document.getElementById('filterReviewActivity').innerHTML = opts;
+  document.getElementById('revActivity').innerHTML = state.activities.map(a=>`<option value="${a.id}">${a.nom}</option>`).join('') || '<option value="">Aucune activité — créez-en une d\'abord</option>';
+  document.getElementById('compActivity').innerHTML = '<option value="">Aucune / général</option>' + state.activities.map(a=>`<option value="${a.id}">${a.nom}</option>`).join('');
+  const catOpts = '<option value="">Toutes catégories</option>' + REVIEW_CATEGORIES.map(c=>`<option>${c}</option>`).join('');
+  document.getElementById('filterReviewCategory').innerHTML = catOpts;
+  document.getElementById('revCategory').innerHTML = REVIEW_CATEGORIES.map(c=>`<option>${c}</option>`).join('');
+}
+
+function openReviewModal(id){
+  const r = id ? state.reviews.find(x=>x.id===id) : null;
+  document.getElementById('revId').value = id || '';
+  document.getElementById('revActivity').value = r ? r.activityId : (state.activities[0]? state.activities[0].id:'');
+  document.getElementById('revPlateforme').value = r ? r.plateforme||'' : '';
+  document.getElementById('revDate').value = r ? r.date : todayISO();
+  document.getElementById('revCategory').value = r ? r.categorie : REVIEW_CATEGORIES[0];
+  document.getElementById('revSentiment').value = r ? r.sentiment : 'Positif';
+  document.getElementById('revTexte').value = r ? r.texte||'' : '';
+  document.getElementById('reviewModal').showModal();
+}
+function saveReviewForm(){
+  const activityId = document.getElementById('revActivity').value;
+  if(!activityId){ alert('Créez d\'abord une activité dans Master Activities.'); return; }
+  const id = document.getElementById('revId').value;
+  const data = {
+    activityId,
+    plateforme: document.getElementById('revPlateforme').value.trim(),
+    date: document.getElementById('revDate').value || todayISO(),
+    categorie: document.getElementById('revCategory').value,
+    sentiment: document.getElementById('revSentiment').value,
+    texte: document.getElementById('revTexte').value.trim(),
+  };
+  guarded(async ()=>{
+    if(id){ await apiSend('PUT', '/reviews/'+id, data); }
+    else{ await apiSend('POST', '/reviews', data); }
+    await loadState();
+    closeModal('reviewModal'); renderReviews(); renderOverview();
+  });
+}
+function deleteReview(id){
+  if(!confirm('Supprimer cet avis ?')) return;
+  guarded(async ()=>{
+    await apiSend('DELETE', '/reviews/'+id);
+    await loadState();
+    renderReviews(); renderOverview();
+  });
+}
+function renderReviews(){
+  const fAct = document.getElementById('filterReviewActivity').value;
+  const fCat = document.getElementById('filterReviewCategory').value;
+  let list = state.reviews.slice().sort((a,b)=> b.date.localeCompare(a.date));
+  if(fAct) list = list.filter(r=>r.activityId===fAct);
+  if(fCat) list = list.filter(r=>r.categorie===fCat);
+  const body = document.getElementById('reviewsTableBody');
+  if(list.length===0){ body.innerHTML = `<tr><td colspan="7" class="empty-state">Aucun avis enregistré.</td></tr>`; return; }
+  body.innerHTML = list.map(r=>{
+    const act = getActivity(r.activityId);
+    return `<tr>
+      <td>${fmtDate(r.date)}</td>
+      <td>${act? act.nom : '<span class="muted">(activité supprimée)</span>'}</td>
+      <td>${r.plateforme||'—'}</td>
+      <td>${r.categorie}</td>
+      <td>${r.sentiment}</td>
+      <td class="small">${(r.texte||'').slice(0,80)}${(r.texte||'').length>80?'…':''}</td>
+      <td class="no-print">
+        <button class="btn btn-ghost btn-sm" onclick="openReviewModal('${r.id}')">Modifier</button>
+        <button class="btn btn-ghost btn-sm btn-danger" onclick="deleteReview('${r.id}')">Suppr.</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function exportReviewsCSV(){
+  const headers = ['Date','Activité','Plateforme','Catégorie','Sentiment','Texte'];
+  const rows = state.reviews.map(r=>{
+    const act = getActivity(r.activityId);
+    return [r.date, act?act.nom:'', r.plateforme, r.categorie, r.sentiment, r.texte];
+  });
+  downloadFile('avis-clients.csv', csvFromRows(headers, rows), 'text/csv;charset=utf-8');
+}
+
+/* ---------- COMPETITORS ---------- */
+function openCompetitorModal(id){
+  const c = id ? state.competitors.find(x=>x.id===id) : null;
+  document.getElementById('compId').value = id || '';
+  document.getElementById('compPlateforme').value = c ? c.plateforme||'' : '';
+  document.getElementById('compDate').value = c ? c.date : todayISO();
+  document.getElementById('compNom').value = c ? c.nom||'' : '';
+  document.getElementById('compPrix').value = c ? c.prix||'' : '';
+  document.getElementById('compActivity').value = c ? (c.activityId||'') : '';
+  document.getElementById('compForces').value = c ? c.forces||'' : '';
+  document.getElementById('compEcarts').value = c ? c.ecarts||'' : '';
+  document.getElementById('competitorModal').showModal();
+}
+function saveCompetitorForm(){
+  const nom = document.getElementById('compNom').value.trim();
+  if(!nom){ alert('Le nom du concurrent est obligatoire.'); return; }
+  const id = document.getElementById('compId').value;
+  const data = {
+    plateforme: document.getElementById('compPlateforme').value.trim(),
+    date: document.getElementById('compDate').value || todayISO(),
+    nom,
+    prix: document.getElementById('compPrix').value.trim(),
+    activityId: document.getElementById('compActivity').value || null,
+    forces: document.getElementById('compForces').value.trim(),
+    ecarts: document.getElementById('compEcarts').value.trim(),
+  };
+  guarded(async ()=>{
+    if(id){ await apiSend('PUT', '/competitors/'+id, data); }
+    else{ await apiSend('POST', '/competitors', data); }
+    await loadState();
+    closeModal('competitorModal'); renderCompetitors();
+  });
+}
+function deleteCompetitor(id){
+  if(!confirm('Supprimer cette fiche concurrent ?')) return;
+  guarded(async ()=>{
+    await apiSend('DELETE', '/competitors/'+id);
+    await loadState();
+    renderCompetitors();
+  });
+}
+function renderCompetitors(){
+  const body = document.getElementById('competitorsTableBody');
+  const list = state.competitors.slice().sort((a,b)=> b.date.localeCompare(a.date));
+  if(list.length===0){ body.innerHTML = `<tr><td colspan="7" class="empty-state">Aucune fiche concurrent enregistrée.</td></tr>`; return; }
+  body.innerHTML = list.map(c=>{
+    const act = c.activityId ? getActivity(c.activityId) : null;
+    return `<tr>
+      <td>${fmtDate(c.date)}</td>
+      <td>${c.plateforme||'—'}</td>
+      <td>${c.nom}</td>
+      <td>${c.prix||'—'}</td>
+      <td>${act? act.nom : '<span class="muted">général</span>'}</td>
+      <td class="small">${c.forces? 'Forces: '+c.forces.slice(0,50):''} ${c.ecarts? '· Écarts: '+c.ecarts.slice(0,50):''}</td>
+      <td class="no-print">
+        <button class="btn btn-ghost btn-sm" onclick="openCompetitorModal('${c.id}')">Modifier</button>
+        <button class="btn btn-ghost btn-sm btn-danger" onclick="deleteCompetitor('${c.id}')">Suppr.</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function exportCompetitorsCSV(){
+  const headers = ['Date','Plateforme','Concurrent','Prix','Activité liée','Points forts','Écarts'];
+  const rows = state.competitors.map(c=>{
+    const act = c.activityId ? getActivity(c.activityId) : null;
+    return [c.date, c.plateforme, c.nom, c.prix, act?act.nom:'', c.forces, c.ecarts];
+  });
+  downloadFile('benchmark-concurrents.csv', csvFromRows(headers, rows), 'text/csv;charset=utf-8');
+}
+
+/* ---------- DAILY ---------- */
+function renderDaily(){
+  const dateInput = document.getElementById('dailyDate');
+  if(!dateInput.value) dateInput.value = todayISO();
+  buildDailyChecklist();
+  buildDailyMeasureFields();
+  loadDailyForDate();
+  renderWeeklyKpis();
+  renderDailyHistory();
+}
+function buildDailyChecklist(){
+  const c = document.getElementById('dailyChecklist');
+  c.innerHTML = DAILY_TASKS.map((t,i)=>`
+    <label class="check-item" style="cursor:pointer;">
+      <input type="checkbox" id="task_${i}" onchange="updateDailyProgress()">
+      <span class="txt">${t}</span>
+    </label>
+  `).join('');
+}
+function buildDailyMeasureFields(){
+  const c = document.getElementById('dailyMeasures');
+  c.innerHTML = DAILY_MEASURES.map(m=>`
+    <div class="field">
+      <label>${m.label}</label>
+      <input type="number" min="0" step="1" id="measure_${m.key}">
+    </div>
+  `).join('');
+}
+function updateDailyProgress(){
+  const total = DAILY_TASKS.length;
+  let done = 0;
+  for(let i=0;i<total;i++){ if(document.getElementById('task_'+i).checked) done++; }
+  document.getElementById('dailyProgressBar').style.width = Math.round(done/total*100)+'%';
+}
+function loadDailyForDate(){
+  const date = document.getElementById('dailyDate').value;
+  const entry = state.dailyLogs.find(d=>d.date===date);
+  DAILY_TASKS.forEach((t,i)=>{
+    document.getElementById('task_'+i).checked = entry ? !!entry.tasks['t'+i] : false;
+  });
+  DAILY_MEASURES.forEach(m=>{
+    document.getElementById('measure_'+m.key).value = entry ? (entry.measures[m.key] ?? '') : '';
+  });
+  document.getElementById('dailyNotes').value = entry ? entry.notes||'' : '';
+  updateDailyProgress();
+}
+function saveDaily(){
+  const date = document.getElementById('dailyDate').value || todayISO();
+  const tasks = {};
+  DAILY_TASKS.forEach((t,i)=>{ tasks['t'+i] = document.getElementById('task_'+i).checked; });
+  const measures = {};
+  DAILY_MEASURES.forEach(m=>{ measures[m.key] = parseInt(document.getElementById('measure_'+m.key).value,10) || 0; });
+  const notes = document.getElementById('dailyNotes').value.trim();
+  guarded(async ()=>{
+    await apiSend('PUT', '/daily/'+date, {tasks, measures, notes});
+    await loadState();
+    renderWeeklyKpis(); renderDailyHistory();
+    alert('Journée du '+fmtDate(date)+' enregistrée.');
+  });
+}
+function deleteDailyLog(date){
+  if(!confirm('Supprimer la fiche du '+fmtDate(date)+' ?')) return;
+  guarded(async ()=>{
+    await apiSend('DELETE', '/daily/'+date);
+    await loadState();
+    if(document.getElementById('dailyDate').value===date) loadDailyForDate();
+    renderWeeklyKpis(); renderDailyHistory();
+  });
+}
+function renderDailyHistory(){
+  const body = document.getElementById('dailyHistoryBody');
+  const list = state.dailyLogs.slice().sort((a,b)=> b.date.localeCompare(a.date));
+  if(list.length===0){ body.innerHTML = `<tr><td colspan="10" class="empty-state">Aucune fiche enregistrée.</td></tr>`; return; }
+  body.innerHTML = list.map(d=>{
+    const done = Object.values(d.tasks).filter(Boolean).length;
+    return `<tr>
+      <td>${fmtDate(d.date)}</td>
+      <td>${done}/${DAILY_TASKS.length}</td>
+      <td class="num">${d.measures.fichesControlees||0}</td>
+      <td class="num">${d.measures.activitesAuditees||0}</td>
+      <td class="num">${d.measures.scoresMisAJour||0}</td>
+      <td class="num">${d.measures.problemesDetectes||0}</td>
+      <td class="num">${d.measures.ameliorationsProposees||0}</td>
+      <td class="num">${d.measures.concurrentsObserves||0}</td>
+      <td class="num">${d.measures.ideesTrouvees||0}</td>
+      <td class="no-print">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('dailyDate').value='${d.date}';loadDailyForDate();window.scrollTo(0,0);">Voir</button>
+        <button class="btn btn-ghost btn-sm btn-danger" onclick="deleteDailyLog('${d.date}')">Suppr.</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function renderWeeklyKpis(){
+  const now = new Date();
+  const monday = startOfWeek(now);
+  const mondayISO = monday.toISOString().slice(0,10);
+  const sundayISO = addDays(mondayISO, 6);
+  const weekLogs = state.dailyLogs.filter(d=> d.date>=mondayISO && d.date<=sundayISO);
+  const sum = k => weekLogs.reduce((s,d)=> s + (d.measures[k]||0), 0);
+  const auditsThisWeek = state.activities.reduce((s,a)=> s + (a.auditHistory||[]).filter(h=> h.date>=mondayISO && h.date<=sundayISO).length, 0);
+  const avgCompletion = weekLogs.length ? Math.round(weekLogs.reduce((s,d)=> s+Object.values(d.tasks).filter(Boolean).length,0) / (weekLogs.length*DAILY_TASKS.length) * 100) : 0;
+
+  const items = [
+    {label:'Activités auditées (audit)', value: auditsThisWeek, sub:'Cible 3–5 / semaine'},
+    {label:'Jours renseignés', value: weekLogs.length, sub:'sur 7 jours'},
+    {label:'Complétion checklist', value: avgCompletion+'%', sub:'moyenne de la semaine'},
+    {label:'Problèmes détectés', value: sum('problemesDetectes'), sub:'cumulés cette semaine'},
+    {label:'Améliorations proposées', value: sum('ameliorationsProposees'), sub:'cumulées cette semaine'},
+    {label:'Idées trouvées', value: sum('ideesTrouvees'), sub:'cumulées cette semaine'},
+  ];
+  document.getElementById('weeklyKpis').innerHTML = items.map(i=>`
+    <div class="kpi"><div class="label">${i.label}</div><div class="value">${i.value}</div><div class="sub">${i.sub}</div></div>
+  `).join('');
+}
+function exportDailyCSV(){
+  const headers = ['Date','Complétion','Fiches contrôlées','Activités auditées','Scores MAJ','Problèmes détectés','Améliorations proposées','Concurrents observés','Idées trouvées','Notes'];
+  const rows = state.dailyLogs.map(d=>{
+    const done = Object.values(d.tasks).filter(Boolean).length;
+    return [d.date, `${done}/${DAILY_TASKS.length}`, d.measures.fichesControlees, d.measures.activitesAuditees, d.measures.scoresMisAJour, d.measures.problemesDetectes, d.measures.ameliorationsProposees, d.measures.concurrentsObserves, d.measures.ideesTrouvees, d.notes];
+  });
+  downloadFile('fiche-quotidienne.csv', csvFromRows(headers, rows), 'text/csv;charset=utf-8');
+}
+
+/* ---------- OVERVIEW ---------- */
+function renderOverview(){
+  const acts = state.activities;
+  const audited = acts.filter(a=>a.total!=null);
+  const avgScore = audited.length ? Math.round(audited.reduce((s,a)=>s+a.total,0)/audited.length) : null;
+  const needsAttention = acts.filter(a=>{ const k=scoreBand(a.total).key; return k==='faible'||k==='urgent'; }).length;
+
+  const now = new Date();
+  const mondayISO = startOfWeek(now).toISOString().slice(0,10);
+  const sundayISO = addDays(mondayISO,6);
+  const auditsThisWeek = acts.reduce((s,a)=> s + (a.auditHistory||[]).filter(h=> h.date>=mondayISO && h.date<=sundayISO).length, 0);
+  const reviewsThisWeek = state.reviews.filter(r=> r.date>=mondayISO && r.date<=sundayISO).length;
+
+  const kpis = [
+    {label:'Activités au catalogue', value: acts.length, sub: acts.length? '' : 'Ajoutez votre première activité'},
+    {label:'Score moyen', value: avgScore!=null? avgScore+'/100' : '—', sub: audited.length+' activité(s) auditée(s)'},
+    {label:'À corriger (faible + urgent)', value: needsAttention, sub:'priorité immédiate'},
+    {label:'Audits cette semaine', value: auditsThisWeek, sub:'cible 3–5 / semaine'},
+    {label:'Nouveaux avis cette semaine', value: reviewsThisWeek, sub:'toutes activités'},
+  ];
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
+    <div class="kpi"><div class="label">${k.label}</div><div class="value">${k.value}</div><div class="sub">${k.sub}</div></div>
+  `).join('');
+
+  const bands = ['excellent','bon','faible','urgent','none'];
+  const bandLabels = {excellent:'Excellent',bon:'Bon à optimiser',faible:'Faible',urgent:'Urgent',none:'Non audité'};
+  const bandColors = {excellent:'var(--excellent)',bon:'var(--bon)',faible:'var(--faible)',urgent:'var(--urgent)',none:'var(--none)'};
+  const counts = {}; bands.forEach(b=>counts[b]=0);
+  acts.forEach(a=>{ counts[scoreBand(a.total).key]++; });
+  const maxCount = Math.max(1, ...bands.map(b=>counts[b]));
+  document.getElementById('distributionBars').innerHTML = bands.map(b=>`
+    <div class="bar-row">
+      <div class="bl">${bandLabels[b]}</div>
+      <div class="bt"><div style="width:${counts[b]/maxCount*100}%;background:${bandColors[b]}"></div></div>
+      <div class="bn">${counts[b]}</div>
+    </div>
+  `).join('');
+
+  const catCounts = {};
+  REVIEW_CATEGORIES.forEach(c=>catCounts[c]={total:0,neg:0});
+  state.reviews.forEach(r=>{
+    if(!catCounts[r.categorie]) catCounts[r.categorie]={total:0,neg:0};
+    catCounts[r.categorie].total++;
+    if(r.sentiment==='Négatif') catCounts[r.categorie].neg++;
+  });
+  const topCats = Object.entries(catCounts).filter(([,v])=>v.total>0).sort((a,b)=> b[1].neg-a[1].neg || b[1].total-a[1].total).slice(0,6);
+  const maxCat = Math.max(1, ...topCats.map(([,v])=>v.total));
+  document.getElementById('reviewTopics').innerHTML = topCats.length ? topCats.map(([cat,v])=>`
+    <div class="bar-row">
+      <div class="bl">${cat}</div>
+      <div class="bt"><div style="width:${v.total/maxCat*100}%;background:var(--faible)"></div></div>
+      <div class="bn">${v.total}</div>
+    </div>
+  `).join('') : '<p class="empty-state">Aucun avis enregistré pour le moment.</p>';
+
+  const priority = acts.slice().sort((a,b)=>{
+    const ra = a.total==null? -1 : a.total;
+    const rb = b.total==null? -1 : b.total;
+    return ra-rb;
+  }).slice(0,6);
+  document.getElementById('priorityTableBody').innerHTML = priority.length ? priority.map(a=>`
+    <tr>
+      <td>${a.nom}</td><td>${a.marque}</td>
+      <td class="num">${a.total!=null? a.total+'/100':'—'}</td>
+      <td>${badgeHtml(a.total)}</td>
+      <td class="no-print"><button class="btn btn-ghost btn-sm" onclick="goAudit('${a.id}')">Auditer</button></td>
+    </tr>
+  `).join('') : '<tr><td colspan="5" class="empty-state">Aucune activité au catalogue.</td></tr>';
+
+  const soon = acts.filter(a=> a.nextAudit && a.nextAudit <= addDays(todayISO(),7)).sort((a,b)=> a.nextAudit.localeCompare(b.nextAudit));
+  const remBox = document.getElementById('overviewReminder');
+  if(soon.length){
+    remBox.innerHTML = `<div class="reminder"><div class="reminder-title">À vérifier sous 7 jours</div>` +
+      soon.map(a=>`${a.nom} — échéance ${fmtDate(a.nextAudit)}`).join('<br>') + `</div>`;
+  } else {
+    remBox.innerHTML = `<div class="reminder empty"><div class="reminder-title">Rien d'urgent</div>Aucune vérification programmée dans les 7 prochains jours.</div>`;
+  }
+}
+
+/* ---------- BACKUP ---------- */
+function exportBackup(){
+  downloadFile('dashboard-souhaib-sauvegarde-'+todayISO()+'.json', JSON.stringify(state,null,2), 'application/json');
+}
+function importBackup(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    guarded(async ()=>{
+      const parsed = JSON.parse(reader.result);
+      if(!parsed.activities) throw new Error('format invalide');
+      if(!confirm('Remplacer toutes les données actuelles par cette sauvegarde ?')) return;
+      await apiSend('POST', '/backup/import', parsed);
+      await loadState();
+      populateAuditSelect(); populateActivityDropdowns();
+      renderOverview(); renderActivities(); renderReviews(); renderCompetitors(); renderDaily();
+      alert('Sauvegarde importée.');
+    });
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+
+/* ---------- THEME ---------- */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeToggle').textContent = t==='dark' ? 'Mode clair' : 'Mode sombre';
+  localStorage.setItem('dashboardSouhaib_theme', t);
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const cur = document.documentElement.getAttribute('data-theme')==='dark' ? 'light':'dark';
+  applyTheme(cur);
+});
+
+/* ---------- INIT ---------- */
+document.querySelectorAll('.nav button').forEach(b=>{
+  b.addEventListener('click', ()=> switchSection(b.dataset.section));
+});
+
+async function init(){
+  applyTheme(localStorage.getItem('dashboardSouhaib_theme') || 'light');
+  try{
+    await loadState();
+  }catch(e){
+    alert('Impossible de charger les données depuis le serveur : '+e.message);
+  }
+  populateActivityDropdowns();
+  populateAuditSelect();
+  renderOverview();
+  renderActivities();
+  renderReviews();
+  renderCompetitors();
+}
+init();
+</script>
+</body>
+</html>
