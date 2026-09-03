@@ -396,6 +396,17 @@ dialog.modal-lg{max-width:740px;}
       </div>
 
       <div class="card">
+        <h3>Travail effectué</h3>
+        <p class="hint">Activités déjà auditées, triées par audit le plus récent. Cliquez sur Modifier pour reprendre une activité.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Activité</th><th>Marque</th><th>Score</th><th>Statut</th><th>Dernier audit</th><th class="no-print"></th></tr></thead>
+            <tbody id="auditWorkDoneBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
         <div class="field-row">
           <div class="field">
             <label>Activité à auditer</label>
@@ -428,15 +439,15 @@ dialog.modal-lg{max-width:740px;}
             <div class="muted small" style="margin-top:5px;">Ce paragraphe accompagne la note globale et permet d’en résumer clairement l’évaluation.</div>
           </div>
 
-          <div class="field">
-            <label for="auditAiInsight">Analyse / insights IA</label>
-            <textarea id="auditAiInsight" rows="6" placeholder="Collez ici l’analyse ou les recommandations obtenues depuis votre outil IA."></textarea>
-            <div class="muted small" style="margin-top:5px;">Ce champ sert uniquement à enregistrer une analyse copiée depuis une IA externe.</div>
+          <div class="reminder no-print" id="auditEditModeBanner" style="display:none;">
+            <div class="reminder-title">Modification d'un audit existant</div>
+            Les modifications mettront à jour cet audit (date inchangée) au lieu d'en créer un nouveau.
           </div>
 
           <div class="actions no-print">
-            <button class="btn" onclick="saveAuditDraft()">Enregistrer comme brouillon</button>
-            <button class="btn btn-primary" onclick="saveAudit()">Enregistrer l'audit</button>
+            <button class="btn" id="auditDraftBtn" onclick="saveAuditDraft()">Enregistrer comme brouillon</button>
+            <button class="btn" id="auditNewBtn" onclick="startNewAudit()" style="display:none;">Nouvel audit</button>
+            <button class="btn btn-primary" id="auditSaveBtn" onclick="saveAuditPrimary()">Enregistrer l'audit</button>
           </div>
 
           <h3 style="margin-top:26px;">Historique des audits</h3>
@@ -778,6 +789,7 @@ const DAILY_MEASURES = [
 
 let state = { activities: [], reviews: [], competitors: [], dailyLogs: [] };
 let pendingAuditSelect = false;
+let editingHistoryId = null;
 
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function addDays(iso, n){ const d = new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
@@ -845,7 +857,7 @@ function switchSection(id){
   });
   if(id==='overview') renderOverview();
   if(id==='activities') renderActivities();
-  if(id==='audit'){ populateAuditSelect(); }
+  if(id==='audit'){ populateAuditSelect(); renderAuditWorkDone(); }
   if(id==='reviews') renderReviews();
   if(id==='competitors') renderCompetitors();
   if(id==='daily') renderDaily();
@@ -1017,7 +1029,8 @@ function onAuditActivityChange(){
   const id = document.getElementById('auditActivitySelect').value;
   const formArea = document.getElementById('auditFormArea');
   const empty = document.getElementById('auditEmptyState');
-  if(!id){ formArea.style.display='none'; empty.style.display='block'; return; }
+  editingHistoryId = null;
+  if(!id){ formArea.style.display='none'; empty.style.display='block'; updateAuditModeUI(); return; }
   formArea.style.display='block'; empty.style.display='none';
   const a = getActivity(id);
   CRITERIA.forEach(c=>{
@@ -1028,9 +1041,21 @@ function onAuditActivityChange(){
   });
   document.getElementById('auditNextDate').value = a.nextAudit || addDays(todayISO(), 28);
   document.getElementById('auditOverview').value = a.auditOverview || '';
-  document.getElementById('auditAiInsight').value = a.auditAiInsight || '';
   recomputeAuditTotal();
   renderAuditHistory(a);
+  updateAuditModeUI();
+}
+
+function updateAuditModeUI(){
+  const editing = editingHistoryId !== null;
+  document.getElementById('auditEditModeBanner').style.display = editing ? 'block' : 'none';
+  document.getElementById('auditDraftBtn').style.display = editing ? 'none' : '';
+  document.getElementById('auditNewBtn').style.display = editing ? '' : 'none';
+  document.getElementById('auditSaveBtn').textContent = editing ? 'Mettre à jour cet audit' : "Enregistrer l'audit";
+}
+
+function startNewAudit(){
+  onAuditActivityChange();
 }
 
 function recomputeAuditTotal(){
@@ -1059,7 +1084,6 @@ function collectAuditPayload(draft){
   return {
     scores, scoresNotes, scoresActions,
     auditOverview: document.getElementById('auditOverview').value.trim(),
-    auditAiInsight: document.getElementById('auditAiInsight').value.trim(),
     nextAudit: document.getElementById('auditNextDate').value || '',
     draft: !!draft
   };
@@ -1075,6 +1099,11 @@ function saveAuditDraft(){
   });
 }
 
+function saveAuditPrimary(){
+  if(editingHistoryId !== null){ updateAuditHistoryEntry(); }
+  else{ saveAudit(); }
+}
+
 function saveAudit(){
   const id = document.getElementById('auditActivitySelect').value;
   if(!id){ alert('Sélectionnez une activité.'); return; }
@@ -1084,7 +1113,26 @@ function saveAudit(){
     renderAuditHistory(getActivity(id));
     renderActivities();
     renderOverview();
+    renderAuditWorkDone();
     alert('Audit enregistré : '+updated.total+'/100 — '+scoreBand(updated.total).label);
+  });
+}
+
+function updateAuditHistoryEntry(){
+  const id = document.getElementById('auditActivitySelect').value;
+  if(!id || editingHistoryId===null) return;
+  const histId = editingHistoryId;
+  const payload = collectAuditPayload(false);
+  guarded(async ()=>{
+    const updated = await apiSend('PUT', '/activities/'+id+'/audit-history/'+histId, payload);
+    await loadState();
+    editingHistoryId = null;
+    updateAuditModeUI();
+    renderAuditHistory(getActivity(id));
+    renderActivities();
+    renderOverview();
+    renderAuditWorkDone();
+    alert('Audit mis à jour : '+updated.total+'/100 — '+scoreBand(updated.total).label);
   });
 }
 
@@ -1099,9 +1147,31 @@ function renderAuditHistory(a){
       <td>${fmtDate(h.date)}</td>
       <td class="num">${h.total}/100</td>
       <td>${badgeHtml(h.total)}</td>
-      <td class="no-print"><button class="btn btn-ghost btn-sm btn-danger" onclick="deleteAuditHistoryEntry('${a.id}',${h.id})">Supprimer</button></td>
+      <td class="no-print">
+        <button class="btn btn-ghost btn-sm" onclick="editAuditHistoryEntry('${a.id}',${h.id})">Modifier</button>
+        <button class="btn btn-ghost btn-sm btn-danger" onclick="deleteAuditHistoryEntry('${a.id}',${h.id})">Supprimer</button>
+      </td>
     </tr>
   `).join('');
+}
+
+function editAuditHistoryEntry(activityId, histId){
+  document.getElementById('auditActivitySelect').value = activityId;
+  onAuditActivityChange();
+  const a = getActivity(activityId);
+  const entry = a && a.auditHistory.find(h=>h.id===histId);
+  if(!entry) return;
+  CRITERIA.forEach(c=>{
+    const score = entry.scores ? entry.scores[c.key] : null;
+    document.getElementById('crit_'+c.key).value = score==null ? '' : score;
+    document.getElementById('critnote_'+c.key).value = (entry.scoresNotes && entry.scoresNotes[c.key]) || '';
+    document.getElementById('critaction_'+c.key).value = (entry.scoresActions && entry.scoresActions[c.key]) || '';
+  });
+  document.getElementById('auditOverview').value = entry.auditOverview || '';
+  recomputeAuditTotal();
+  editingHistoryId = histId;
+  updateAuditModeUI();
+  document.getElementById('auditFormArea').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function deleteAuditHistoryEntry(activityId, histId){
@@ -1115,7 +1185,28 @@ function deleteAuditHistoryEntry(activityId, histId){
     onAuditActivityChange();
     renderActivities();
     renderOverview();
+    renderAuditWorkDone();
   });
+}
+
+function renderAuditWorkDone(){
+  const body = document.getElementById('auditWorkDoneBody');
+  const list = state.activities.filter(a=>a.total!=null).slice()
+    .sort((a,b)=> (b.lastAudit||'').localeCompare(a.lastAudit||''));
+  if(list.length===0){
+    body.innerHTML = `<tr><td colspan="6" class="empty-state">Aucune activité auditée pour le moment.</td></tr>`;
+    return;
+  }
+  body.innerHTML = list.map(a=>`
+    <tr>
+      <td>${a.nom}</td>
+      <td>${a.marque}</td>
+      <td class="num">${a.total}/100</td>
+      <td>${badgeHtml(a.total)}</td>
+      <td>${fmtDate(a.lastAudit)}</td>
+      <td class="no-print"><button class="btn btn-ghost btn-sm" onclick="goAudit('${a.id}')">Modifier</button></td>
+    </tr>
+  `).join('');
 }
 
 function scoreGaugeSvg(total){
@@ -1199,12 +1290,6 @@ function buildAuditReportHtml(a){
     <div class="report-block">
       <h4>Appréciation globale</h4>
       <p class="report-prose">${a.auditOverview.replace(/\n/g,'<br>')}</p>
-    </div>` : ''}
-
-    ${a.auditAiInsight ? `
-    <div class="report-block">
-      <h4>Analyse / insights IA</h4>
-      <p class="report-prose">${a.auditAiInsight.replace(/\n/g,'<br>')}</p>
     </div>` : ''}
 
     ${critDetails ? `
