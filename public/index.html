@@ -957,6 +957,7 @@ function renderActivities(){
       <td>${fmtDate(a.lastAudit)}</td>
       <td class="no-print">
         <button class="btn btn-ghost btn-sm" onclick="goAudit('${a.id}')">Auditer</button>
+        ${a.total!=null ? `<button class="btn btn-ghost btn-sm" onclick="viewAuditReport('${a.id}')">Résultat</button>` : ''}
         <button class="btn btn-ghost btn-sm" onclick="openActivityModal('${a.id}')">Modifier</button>
         <button class="btn btn-ghost btn-sm btn-danger" onclick="deleteActivity('${a.id}')">Suppr.</button>
       </td>
@@ -1217,8 +1218,12 @@ function buildAuditReportHtml(a){
 function openAuditReport(){
   const id = document.getElementById('auditActivitySelect').value;
   if(!id){ alert('Sélectionnez une activité.'); return; }
+  viewAuditReport(id);
+}
+
+function viewAuditReport(id){
   const a = getActivity(id);
-  if(a.total == null){ alert('Enregistrez d\'abord un audit pour cette activité avant de voir le rapport.'); return; }
+  if(!a || a.total == null){ alert('Enregistrez d\'abord un audit pour cette activité avant de voir le rapport.'); return; }
   document.getElementById('reportModalBody').innerHTML = buildAuditReportHtml(a);
   document.getElementById('reportModal').showModal();
 }
