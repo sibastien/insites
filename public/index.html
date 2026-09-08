@@ -332,9 +332,20 @@ dialog.modal-lg{max-width:740px;}
         <p class="hint">Les données sont stockées dans la base SQLite du serveur (dossier data/). Exportez régulièrement une sauvegarde JSON en complément.</p>
         <div class="actions no-print">
           <button class="btn" onclick="exportBackup()">Exporter une sauvegarde (JSON)</button>
-          <button class="btn" onclick="document.getElementById('importFile').click()">Importer une sauvegarde</button>
+          <button class="btn" onclick="openAuditExport()">Exporter un seul audit (JSON)</button>
+          <button class="btn" onclick="document.getElementById('importFile').click()">Importer des audits (ajouter)</button>
           <input type="file" id="importFile" accept="application/json" style="display:none" onchange="importBackup(event)">
         </div>
+        <p class="hint">L’import ajoute les activités et leurs audits sans remplacer les données existantes. Un audit déjà présent sera ajouté comme une nouvelle copie.</p>
+        <dialog id="auditExportDialog">
+          <h3>Exporter un seul audit</h3>
+          <p>Choisissez une activité : ses scores, son historique et ses fiches associées seront inclus.</p>
+          <select id="auditExportSelect" aria-label="Activité à exporter"></select>
+          <div class="actions">
+            <button class="btn" onclick="exportSingleAudit()">Exporter (JSON)</button>
+            <button class="btn" onclick="document.getElementById('auditExportDialog').close()">Annuler</button>
+          </div>
+        </dialog>
       </div>
     </section>
 
@@ -1671,6 +1682,25 @@ function renderOverview(){
 function exportBackup(){
   downloadFile('dashboard-souhaib-sauvegarde-'+todayISO()+'.json', JSON.stringify(state,null,2), 'application/json');
 }
+function openAuditExport(){
+  if(!state.activities.length){ alert('Aucune activité à exporter.'); return; }
+  const select = document.getElementById('auditExportSelect');
+  select.replaceChildren(...state.activities.map(a => new Option(`${a.nom} — ${a.plateforme || ''}`, a.id)));
+  document.getElementById('auditExportDialog').showModal();
+}
+function exportSingleAudit(){
+  const id = document.getElementById('auditExportSelect').value;
+  const activity = state.activities.find(a => a.id === id);
+  if(!activity) return;
+  const data = {
+    activities: [activity],
+    reviews: state.reviews.filter(r => r.activityId === id),
+    competitors: state.competitors.filter(c => c.activityId === id),
+    dailyLogs: []
+  };
+  downloadFile('audit-'+todayISO()+'.json', JSON.stringify(data,null,2), 'application/json');
+  document.getElementById('auditExportDialog').close();
+}
 function importBackup(evt){
   const file = evt.target.files[0];
   if(!file) return;
@@ -1678,13 +1708,14 @@ function importBackup(evt){
   reader.onload = () => {
     guarded(async ()=>{
       const parsed = JSON.parse(reader.result);
-      if(!parsed.activities) throw new Error('format invalide');
-      if(!confirm('Remplacer toutes les données actuelles par cette sauvegarde ?')) return;
-      await apiSend('POST', '/backup/import', parsed);
+      const activities = parsed && (Array.isArray(parsed.activities) ? parsed.activities : typeof parsed.nom === 'string' ? [parsed] : null);
+      if(!activities || !activities.length) throw new Error('Le fichier ne contient aucun audit à importer.');
+      if(!confirm(`Ajouter ${activities.length} activité(s) et leurs audits aux données existantes ? Aucun élément existant ne sera remplacé. Les audits déjà présents seront ajoutés comme nouvelles copies.`)) return;
+      await apiSend('POST', '/backup/import?mode=append', parsed);
       await loadState();
       populateAuditSelect(); populateActivityDropdowns();
       renderOverview(); renderActivities(); renderReviews(); renderCompetitors(); renderDaily();
-      alert('Sauvegarde importée.');
+      alert('Audits ajoutés. Les données existantes ont été conservées.');
     });
   };
   reader.readAsText(file);
